@@ -1,0 +1,221 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.87);
+  color-scheme: light dark;
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode styles */
+:root {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: #121212;
+}
+
+/* Theme Variables */
+:root[data-theme="light"] {
+  --bg-primary: rgba(255, 255, 255, 0.5);
+  --bg-secondary: rgba(255, 255, 255, 0.75);
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --sidebar-bg: rgba(255, 255, 255, 0.95);
+  --modal-bg: rgba(255, 255, 255, 0.95);
+  --border-color: rgba(0, 0, 0, 0.2);
+  --hover-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(30, 30, 30, 0.8);
+  --sidebar-bg: rgba(18, 18, 18, 0.95);
+  --modal-bg: rgba(30, 30, 30, 0.95);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --hover-color: rgba(255, 255, 255, 0.05);
+}
+
+a {
+  font-weight: 500;
+  color: #90caf9;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #42a5f5;
+}
+
+/* Apply theme colors */
+body {
+  margin: 0;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  position: relative;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body::before {
+  display: none;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Remove blur from app-container */
+.app-container {
+  padding-top: 60px;
+  min-height: 100vh;
+  box-shadow: 0 8px 32px 0 var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+/* Override Bootstrap background */
+.navbar {
+  z-index: 1030;
+}
+
+.sidebar {
+  z-index: 1020;
+  height: calc(100vh - 60px);
+  position: fixed;
+  top: 60px;
+  background: var(--sidebar-bg) !important;
+}
+
+.main-content {
+  margin-left: 16.666667%; /* For md-2 sidebar */
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+/* Add blur effect to card components */
+.card {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 0 4px 12px var(--shadow-color) !important;
+}
+
+/* Modify container blur effects */
+.container, .container-fluid {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px 0 var(--shadow-color);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Adjust table transparency */
+.table {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 2px 8px var(--shadow-color) !important;
+}
+
+.table thead {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.table tbody tr:hover {
+  background: var(--hover-color) !important;
+}
+
+/* Dark mode form controls */
+.form-control, .form-select {
+  background-color: var(--bg-secondary) !important;
+  border: 2px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--card-bg) !important;
+  border-color: #1976d2 !important;
+  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25) !important;
+}
+
+/* Dark mode modal */
+.modal-content {
+  background: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode alert */
+.alert {
+  background: rgba(30, 30, 30, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark mode text and links */
+.text-muted {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Typography enhancement for light mode */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px var(--shadow-color);
+}

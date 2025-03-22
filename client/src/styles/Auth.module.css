@@ -1,0 +1,32 @@
+.authContainer {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 400px;
+    margin: 80px auto 20px;  /* Adjusted top margin */
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+}
+
+.authRedirect {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.authRedirect a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.authRedirect a:hover {
+    text-decoration: underline;
+}
+
+.successMessage {
+    color: #28a745;
+}
+
+.errorMessage {
+    color: #dc3545;
+}

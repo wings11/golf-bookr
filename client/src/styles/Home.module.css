@@ -1,0 +1,199 @@
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    text-align: center;
+    background: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa') no-repeat center center/cover;
+}
+
+.heroContent {
+    text-align: center;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 15px;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.features {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.featuresGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.featureCard {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.featuredCourse {
+    padding: 2rem;
+    margin: 2rem 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+}
+
+.featuredCourses {
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.courseGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.courseCard {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.courseCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.courseImage {
+    flex: 1;
+    max-width: 500px;
+}
+
+.courseImage img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.courseImage img:hover {
+    transform: scale(1.02);
+}
+
+.courseInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.courseFeatures {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.courseFeatures ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.courseFeatures li {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.courseFeatures li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4caf50;
+}
+
+@media (max-width: 768px) {
+    .courseCard {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .courseImage {
+        max-width: 100%;
+    }
+
+    .courseFeatures {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+.logoContainer {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    margin: 15px 0;
+}
+
+.runningLogo {
+    position: absolute;
+    top: 20%;
+    height: 60px;
+    animation: runAcross 15s linear infinite;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.logo1 {
+    animation: runAcross 15s linear infinite;
+    animation-delay: 0s;
+}
+
+.logo2 {
+    animation: runAcross 15s linear infinite;
+    animation-delay: 3s;
+}
+
+.logo3 {
+    animation: runAcross 15s linear infinite;
+    animation-delay: 6s;
+}
+
+.logo4 {
+    animation: runAcross 15s linear infinite;
+    animation-delay: 9s;
+}
+
+.logo5 {
+    animation: runAcross 15s linear infinite;
+    animation-delay: 12s;
+}
+
+@keyframes runAcross {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100vw);
+    }
+}

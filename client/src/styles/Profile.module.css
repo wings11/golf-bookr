@@ -1,0 +1,36 @@
+.profileContainer {
+    max-width: 800px;
+    margin: 80px auto 20px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profilePicture {
+    width: 150px !important;  /* Increased width */
+    height: 150px !important; /* Increased height */
+    border-radius: 8px !important; /* Changed from 50% to 8px for rectangular shape */
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.bookingsContainer {
+    margin-top: 20px;
+}
+
+.bookingCard {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.bookingCard:hover {
+    transform: translateY(-2px);
+}

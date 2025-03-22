@@ -1,0 +1,27 @@
+.sidebar {
+    min-height: 100vh;
+    padding-top: 20px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,0.8);
+    padding: 12px 20px;
+    margin: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar .nav-item {
+    margin-bottom: 5px;
+}
