@@ -117,13 +117,21 @@ app.use('*', (req, res) => {
     });
 });
 
-// Improved error handling middleware
+// Enhanced error handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
+    console.error('Error:', {
+        message: err.message,
+        stack: err.stack,
+        path: req.path,
+        method: req.method,
+        timestamp: new Date().toISOString()
+    });
+    
     const statusCode = err.statusCode || 500;
     res.status(statusCode).json({ 
         success: false, 
         message: err.message || 'Something broke!',
+        code: err.code,
         details: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });

@@ -58,13 +58,23 @@ export const db = {
             pool = await createPool();
         }
         try {
-            return await pool.execute(...args);
+            const result = await pool.execute(...args);
+            return result;
         } catch (error) {
-            if (error.code === 'PROTOCOL_CONNECTION_LOST') {
+            if (error.code === 'PROTOCOL_CONNECTION_LOST' || 
+                error.code === 'ECONNREFUSED' || 
+                error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR') {
+                console.log('Attempting to reconnect...');
                 pool = await createPool();
                 return await pool.execute(...args);
             }
             throw error;
         }
+    },
+    getConnection: async () => {
+        if (!pool) {
+            pool = await createPool();
+        }
+        return await pool.getConnection();
     }
 };

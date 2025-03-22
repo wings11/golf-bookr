@@ -289,3 +289,48 @@ render status
    - Verify database credentials
    - Ensure port 3000 is available
    - Check firewall settings
+
+## Expose Local Server with ngrok
+
+1. **Install ngrok**
+   - Download ngrok from https://ngrok.com/download
+   - Extract the zip file
+   - Move ngrok.exe to `C:\Windows` or add its location to PATH
+   - Open new terminal to apply PATH changes
+
+2. **Configure ngrok**
+   ```bash
+   # Test ngrok is installed
+   ngrok --version
+
+   # Configure your authtoken
+   ngrok config add-authtoken cr_2ug4UKmgFcCGs7rTV4I0tmm1jlo
+   ```
+
+3. **Start ngrok**
+   ```bash
+   # Make sure your server is running first
+   cd server
+   npm run dev
+
+   # In a new terminal, start ngrok
+   ngrok http 3000
+   ```
+
+4. **Update Vercel Environment Variables**
+   - Copy the ngrok URL (e.g., https://xxxx-xx-xx-xxx-xx.ngrok.io)
+   - Go to Vercel project settings
+   - Update environment variable:
+   ```
+   VITE_API_URL=https://xxxx-xx-xx-xxx-xx.ngrok.io/api/v1
+   ```
+
+5. **Keep Terminal Open**
+   - Keep the ngrok terminal window open while testing
+   - The URL changes each time you restart ngrok
+   - Consider upgrading to a paid plan for static URLs
+
+6. **Verify Connection**
+   - Test the health endpoint through ngrok URL
+   - Test the client connection
+   - Check CORS headers in browser dev tools
