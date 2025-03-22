@@ -23,7 +23,11 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: ['https://golf-bookr.vercel.app', 'http://localhost:5173', /\.ngrok\.io$/],
+    origin: [
+        'https://golf-bookr.vercel.app', 
+        'http://localhost:5173', 
+        'https://71df-171-7-33-240.ngrok-free.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
