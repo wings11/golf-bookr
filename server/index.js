@@ -22,18 +22,12 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 
-// Add CORS preflight options handler
-app.options('*', cors());
-
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? [/\.vercel\.app$/, process.env.CLIENT_URL].filter(Boolean)
-        : true,
+    origin: ['https://golf-bookr.vercel.app', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['Authorization'],
-    preflightContinue: true
 }));
 
 // Debug middleware - log all requests

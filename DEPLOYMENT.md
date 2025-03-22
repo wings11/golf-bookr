@@ -60,6 +60,38 @@
    - Add your Vercel domain to CORS configuration
    - Update `server/index.js` CORS settings
 
+## Database Setup on Render
+
+1. **Create External MySQL Database**
+   - Use a service like PlanetScale, Railway, or AWS RDS
+   - Get connection details:
+     ```
+     DB_HOST=your-db-host
+     DB_PORT=3306
+     DB_USER=your-username
+     DB_PASSWORD=your-password
+     DB_NAME=your-database
+     ```
+
+2. **Test Database Connection**
+   ```bash
+   mysql -h your-db-host -u your-username -p
+   ```
+
+3. **Update Render Environment Variables**
+   - Add these additional variables:
+     ```
+     DB_PORT=3306
+     NODE_ENV=production
+     ```
+
+4. **Initialize Database**
+   - Connect to your database
+   - Run schema.sql:
+     ```bash
+     mysql -h your-db-host -u your-username -p your-database < server/db/schema.sql
+     ```
+
 ## GitHub Setup and Deployment
 
 1. **Initialize Git Repository**
@@ -109,6 +141,55 @@
    git checkout main
    git pull origin main
    git merge feature/new-feature
+   git push origin main
+   ```
+
+## Updating Code on GitHub
+
+1. **Check Status**
+   ```bash
+   git status  # See which files have changed
+   ```
+
+2. **Stage Changes**
+   ```bash
+   # Stage specific files
+   git add filename1 filename2
+
+   # Or stage all changes
+   git add .
+   ```
+
+3. **Commit Changes**
+   ```bash
+   # Create a commit with a descriptive message
+   git commit -m "Description of your changes"
+   ```
+
+4. **Pull Latest Changes**
+   ```bash
+   # Get latest changes from remote
+   git pull origin main
+   ```
+
+5. **Push Updates**
+   ```bash
+   # Push your changes to GitHub
+   git push origin main
+   ```
+
+6. **Best Practices**
+   - Always pull before pushing to avoid conflicts
+   - Use meaningful commit messages
+   - Commit related changes together
+   - Test code before pushing
+   - Review your changes with `git diff` before committing
+
+7. **Handling Merge Conflicts**
+   ```bash
+   # If you get conflicts, resolve them then:
+   git add .
+   git commit -m "Resolved merge conflicts"
    git push origin main
    ```
 
@@ -163,3 +244,48 @@ render logs
 # Monitor server status
 render status
 ```
+
+## Running Server Locally with Deployed Client
+
+1. **Local Server Setup**
+   ```bash
+   # In server directory
+   npm install
+   npm run dev
+   ```
+
+2. **Environment Setup**
+   - Create `.env` in server directory:
+   ```
+   DB_HOST=localhost
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_NAME=golf_bookr
+   JWT_SECRET=your_jwt_secret
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+
+3. **Database Setup**
+   - Install MySQL locally
+   - Create database and run schema:
+   ```bash
+   mysql -u root -p
+   CREATE DATABASE golf_bookr;
+   exit;
+   mysql -u root -p golf_bookr < db/schema.sql
+   ```
+
+4. **Start Server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Test Connection**
+   - Visit http://localhost:3000/health
+   - Should see database connection status
+
+6. **Troubleshooting Local Setup**
+   - Check MySQL is running
+   - Verify database credentials
+   - Ensure port 3000 is available
+   - Check firewall settings
