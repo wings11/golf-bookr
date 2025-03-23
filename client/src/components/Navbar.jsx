@@ -22,6 +22,8 @@ const Navbar = () => {
             </div>
             <ul className={styles.navLinks}>
                 <li><Link to="/">Home</Link></li>
+                <li><Link to="/about">About Us</Link></li>
+                
                 {isLoggedIn ? (
                     <>
                         <li><Link to="/booking">Make Booking</Link></li>

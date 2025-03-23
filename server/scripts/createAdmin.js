@@ -3,10 +3,10 @@ import { db } from '../db.js';
 
 const admins = [
     {
-        name: 'Admin User',
-        username: 'admin',
-        email: 'admin@golfbookr.com',
-        password: 'admin123',
+        name: 'Manager',
+        username: 'managerhr',
+        email: 'managerhr@golfbookr.com',
+        password: 'managerhr123',
         role: 'admin'
     },
     {

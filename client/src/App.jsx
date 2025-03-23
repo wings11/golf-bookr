@@ -17,6 +17,7 @@ import TeeTimeManager from './components/Admin/TeeTimeManager';
 import BookingViewer from './components/Admin/BookingViewer';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import TeeTimes from './components/Admin/TeeTimes';
+import AboutUs from './components/AboutUs';
 
 const theme = createTheme({
   palette: {
@@ -109,6 +110,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/booking" element={<Booking />} />
               <Route path="/chatbot" element={loading ? <Loading /> : <Chatbot />} />
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/admin" element={
                 <ProtectedRoute requiredRole="admin">
                   <Dashboard />

@@ -26,6 +26,8 @@ const Booking = () => {
         equipment_rental: null
     });
     const [specialRequests, setSpecialRequests] = useState('');
+    const [todaysTeeTimes, setTodaysTeeTimes] = useState([]);
+    const [viewingToday, setViewingToday] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -140,53 +142,138 @@ const Booking = () => {
         }
     }, [selectedCourse, selectedDate, refreshInterval]);
 
+    // Add this new function to fetch today's tee times
+    const fetchTodaysTeeTimes = async () => {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const response = await api.get('/bookings/today-tee-times', {
+                params: { 
+                    timestamp: new Date().getTime()
+                }
+            });
+            
+            if (response.data.success) {
+                const availableTimes = response.data.teeTimes.filter(t => t.available);
+                setTodaysTeeTimes(availableTimes);
+                setViewingToday(true);
+                setMessage({ 
+                    text: availableTimes.length > 0 
+                        ? `Found ${availableTimes.length} available times for today`
+                        : 'No available tee times for today',
+                    type: availableTimes.length > 0 ? 'success' : 'info'
+                });
+            }
+        } catch (error) {
+            setMessage({ 
+                text: 'Error fetching today\'s tee times', 
+                type: 'error' 
+            });
+        }
+    };
+
     return (
         <div className={styles.container}>
             <Typography variant="h4" gutterBottom>Choose Golf Course (Holes) and Date</Typography>
 
-            <div className={styles.courseSelection}>
-                <FormControl fullWidth margin="normal">
-                    <InputLabel>Select Course</InputLabel>
-                    <Select
-                        value={selectedCourse}
-                        onChange={(e) => setSelectedCourse(e.target.value)}
-                    >
-                        {courses.map(course => (
-                            <MenuItem key={course.id} value={course.id}>
-                                {course.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                
-                <TextField
-                    fullWidth
-                    margin="normal"
-                    type="date"
-                    label="Select Date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                />
-                
-                <div className="d-flex justify-content-between align-items-center mt-2">
+            <div className={styles.actionButtons}>
+                <Button 
+                    variant="contained" 
+                    onClick={fetchTodaysTeeTimes}
+                    sx={{ mb: 2, mr: 2 }}
+                >
+                    View Today's Available Tee Times
+                </Button>
+                {viewingToday && (
                     <Button 
-                        variant="contained"
-                        onClick={handleSearch}
-                        sx={{ width: 'auto' }}
+                        variant="outlined"
+                        onClick={() => setViewingToday(false)}
+                        sx={{ mb: 2 }}
                     >
-                        Search Available Tee Times
+                        Back to Course Selection
                     </Button>
-                    
-                    {lastUpdate && (
-                        <small className="text-muted">
-                            Last updated: {new Date(lastUpdate).toLocaleTimeString()}
-                            {wsConnected && <span className="text-success ms-2">●</span>}
-                        </small>
-                    )}
-                </div>
+                )}
             </div>
 
+            {!viewingToday ? (
+                // Original course selection form
+                <div className={styles.courseSelection}>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Select Course</InputLabel>
+                        <Select
+                            value={selectedCourse}
+                            onChange={(e) => setSelectedCourse(e.target.value)}
+                        >
+                            {courses.map(course => (
+                                <MenuItem key={course.id} value={course.id}>
+                                    {course.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        type="date"
+                        label="Select Date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                    
+                    <div className="d-flex justify-content-between align-items-center mt-2">
+                        <Button 
+                            variant="contained"
+                            onClick={handleSearch}
+                            sx={{ width: 'auto' }}
+                        >
+                            Search Available Tee Times
+                        </Button>
+                        
+                        {lastUpdate && (
+                            <small className="text-muted">
+                                Last updated: {new Date(lastUpdate).toLocaleTimeString()}
+                                {wsConnected && <span className="text-success ms-2">●</span>}
+                            </small>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                // Today's tee times view
+                <div className={styles.todaysTeeTimes}>
+                    <Typography variant="h5" gutterBottom>
+                        Available Tee Times for Today
+                    </Typography>
+                    
+                    {todaysTeeTimes.length > 0 ? (
+                        <div className={styles.teeTimeGrid}>
+                            {todaysTeeTimes.map((time) => (
+                                <div key={time.id} className={styles.teeTimeCard}>
+                                    <Typography variant="h6">{time.course_name}</Typography>
+                                    <Typography>Time: {time.time}</Typography>
+                                    <Typography>{time.date} - {time.time}</Typography>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => {
+                                            setSelectedTime(time);
+                                            setViewingToday(false);
+                                        }}
+                                        sx={{ mt: 1 }}
+                                    >
+                                        Book Now
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <Alert severity="info">
+                            No available tee times for today
+                        </Alert>
+                    )}
+                </div>
+            )}
+
+            {/* Rest of the component */}
             {teeTimes.length > 0 && (
                 <div className={styles.teeTimesList}>
                     {teeTimes.map((time) => (

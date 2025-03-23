@@ -326,34 +326,90 @@ router.delete('/courses/:id', auth, async (req, res) => {
 
 // Create multiple tee times
 router.post('/tee-times/bulk', auth, async (req, res) => {
+    let connection;
     try {
-        const { courseId, date, startTime, endTime, interval } = req.body;
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        const { courseId, date, startTime, endTime, interval, maxPlayers, specialNotes } = req.body;
         
-        const start = new Date(`${date}T${startTime}`);
-        const end = new Date(`${date}T${endTime}`);
-        const timeSlots = [];
-        
-        for(let time = start; time <= end; time.setMinutes(time.getMinutes() + interval)) {
-            timeSlots.push([
-                courseId,
-                date,
-                time.toTimeString().split(' ')[0],
-                true, // available
-                4, // max_players default
-                '' // special_notes
-            ]);
+        // Validate required fields
+        if (!courseId || !date || !startTime || !endTime || !interval) {
+            return res.status(400).json({
+                success: false,
+                message: 'Required fields missing'
+            });
         }
 
-        await db.query(
-            `INSERT INTO tee_times 
-            (course_id, date, time, available, max_players, special_notes) 
-            VALUES ?`,
-            [timeSlots]
-        );
+        // Convert times to minutes
+        const start = parseInt(startTime.split(':')[0]) * 60 + parseInt(startTime.split(':')[1]);
+        const end = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
+        
+        if (start >= end) {
+            return res.status(400).json({
+                success: false,
+                message: 'End time must be after start time'
+            });
+        }
 
-        res.json({ success: true, message: 'Tee times created successfully' });
+        let currentTime = start;
+        let createdCount = 0;
+
+        // Generate time slots
+        while (currentTime <= end) {
+            const hours = Math.floor(currentTime / 60);
+            const minutes = currentTime % 60;
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+            
+            // Check for existing slots
+            const [existing] = await connection.execute(
+                'SELECT id FROM tee_times WHERE course_id = ? AND date = ? AND time = ?',
+                [courseId, date, timeString]
+            );
+
+            if (existing.length === 0) {
+                const query = `
+                    INSERT INTO tee_times 
+                    (course_id, date, time, available, max_players, special_notes) 
+                    VALUES 
+                    (?, ?, ?, 1, ?, ?)
+                `;
+
+                await connection.execute(query, [
+                    courseId,
+                    date,
+                    timeString,
+                    maxPlayers || 4,
+                    specialNotes || null
+                ]);
+                
+                createdCount++;
+            }
+            
+            currentTime += parseInt(interval);
+        }
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: `Created ${createdCount} tee times successfully`,
+            count: createdCount
+        });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Error creating tee times:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Error creating tee times'
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
     }
 });
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://golf-bookr-api.onrender.com',  // Make sure this matches your server URL
+    baseURL: 'http://localhost:3000',  // Make sure this matches your server URL
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'

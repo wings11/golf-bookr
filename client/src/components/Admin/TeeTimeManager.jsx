@@ -15,7 +15,9 @@ const TeeTimeManager = () => {
         date: '',
         startTime: '07:00',
         endTime: '17:00',
-        interval: 10
+        interval: 10,
+        maxPlayers: 4,
+        specialNotes: ''
     });
     const [confirmDeleteAllOpen, setConfirmDeleteAllOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
@@ -46,11 +48,32 @@ const TeeTimeManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/admin/tee-times/bulk', formData);
-            setShowModal(false);
-            fetchTeeTimes();
+            // Validate required fields
+            if (!formData.courseId || !formData.date || !formData.startTime || !formData.endTime) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const response = await api.post('/admin/tee-times/bulk', {
+                courseId: formData.courseId,
+                date: formData.date,
+                startTime: formData.startTime,
+                endTime: formData.endTime,
+                interval: parseInt(formData.interval),
+                maxPlayers: parseInt(formData.maxPlayers),
+                specialNotes: formData.specialNotes || null
+            });
+
+            if (response.data.success) {
+                setSuccessMessage(`Successfully created ${response.data.count} tee times`);
+                setShowModal(false);
+                fetchTeeTimes();
+            } else {
+                alert(response.data.message || 'Failed to create tee times');
+            }
         } catch (error) {
             console.error('Error creating tee times:', error);
+            alert(error.response?.data?.message || 'Error creating tee times');
         }
     };
 
@@ -97,7 +120,7 @@ const TeeTimeManager = () => {
             </div>
 
             {successMessage && (
-                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                <div className="alert bg-success alert-dismissible fade show" role="alert">
                     {successMessage}
                     <button type="button" className="btn-close" onClick={() => setSuccessMessage('')}></button>
                 </div>
@@ -109,7 +132,9 @@ const TeeTimeManager = () => {
                         <th>Course</th>
                         <th>Date</th>
                         <th>Time</th>
+                        <th>Max Players</th>
                         <th>Status</th>
+                        <th>Special Notes</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -119,12 +144,15 @@ const TeeTimeManager = () => {
                             <td>{teeTime.course_name}</td>
                             <td>{teeTime.date}</td>
                             <td>{teeTime.time}</td>
+                            <td>{teeTime.max_players}</td>
                             <td>{teeTime.available ? 'Available' : 'Booked'}</td>
+                            <td>{teeTime.special_notes || '-'}</td>
                             <td>
                                 <Button 
                                     variant="danger" 
                                     size="sm"
                                     onClick={() => handleDelete(teeTime.id)}
+                                    disabled={!teeTime.available}
                                 >
                                     Delete
                                 </Button>
@@ -168,11 +196,12 @@ const TeeTimeManager = () => {
                                 <option value="">Select Course</option>
                                 {courses.map(course => (
                                     <option key={course.id} value={course.id}>
-                                        {course.name}
+                                        {course.name} ({course.holes} holes)
                                     </option>
                                 ))}
                             </Form.Select>
                         </Form.Group>
+
                         <Form.Group className="mb-3">
                             <Form.Label>Date</Form.Label>
                             <Form.Control
@@ -182,39 +211,76 @@ const TeeTimeManager = () => {
                                 required
                             />
                         </Form.Group>
+
+                        <div className="row">
+                            <div className="col">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Start Time</Form.Label>
+                                    <Form.Control
+                                        type="time"
+                                        value={formData.startTime}
+                                        onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                                        required
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>End Time</Form.Label>
+                                    <Form.Control
+                                        type="time"
+                                        value={formData.endTime}
+                                        onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                                        required
+                                    />
+                                </Form.Group>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Interval (minutes)</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={formData.interval}
+                                        onChange={(e) => setFormData({...formData, interval: parseInt(e.target.value)})}
+                                        min="5"
+                                        max="60"
+                                        required
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Max Players</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={formData.maxPlayers}
+                                        onChange={(e) => setFormData({...formData, maxPlayers: parseInt(e.target.value)})}
+                                        min="1"
+                                        max="4"
+                                        required
+                                    />
+                                </Form.Group>
+                            </div>
+                        </div>
+
                         <Form.Group className="mb-3">
-                            <Form.Label>Start Time</Form.Label>
+                            <Form.Label>Special Notes</Form.Label>
                             <Form.Control
-                                type="time"
-                                value={formData.startTime}
-                                onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-                                required
+                                as="textarea"
+                                rows={3}
+                                value={formData.specialNotes}
+                                onChange={(e) => setFormData({...formData, specialNotes: e.target.value})}
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>End Time</Form.Label>
-                            <Form.Control
-                                type="time"
-                                value={formData.endTime}
-                                onChange={(e) => setFormData({...formData, endTime: e.target.value})}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Interval (minutes)</Form.Label>
-                            <Form.Control
-                                type="number"
-                                value={formData.interval}
-                                onChange={(e) => setFormData({...formData, interval: parseInt(e.target.value)})}
-                                min="5"
-                                max="60"
-                                required
-                            />
-                        </Form.Group>
+                        
                         <Button type="submit">Create</Button>
                     </Form>
                 </Modal.Body>
             </Modal>
+
         </div>
     );
 };

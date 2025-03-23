@@ -111,6 +111,41 @@ router.get('/tee-times-range', async (req, res) => {
     }
 });
 
+// Add new route for today's tee times across all courses
+router.get('/today-tee-times', auth, async (req, res) => {
+    try {
+        const [teeTimes] = await db.execute(`
+            SELECT 
+                t.*,
+                c.name as course_name,
+                c.difficulty_level,
+                c.holes,
+                c.location
+            FROM tee_times t
+            JOIN courses c ON t.course_id = c.id
+            WHERE 
+                DATE(t.date) = CURDATE()
+                AND t.available = true
+            ORDER BY t.time ASC
+        `);
+
+        res.json({
+            success: true,
+            teeTimes: teeTimes.map(time => ({
+                ...time,
+                time: time.time.substring(0, 5), // Format time to HH:mm
+                date: time.date.toISOString().split('T')[0]
+            }))
+        });
+    } catch (error) {
+        console.error('Error fetching today\'s tee times:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch tee times'
+        });
+    }
+});
+
 router.delete('/:id', auth, async (req, res) => {
     try {
         // Verify the booking belongs to the user

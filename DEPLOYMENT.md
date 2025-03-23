@@ -334,3 +334,121 @@ render status
    - Test the health endpoint through ngrok URL
    - Test the client connection
    - Check CORS headers in browser dev tools
+
+## Database Setup
+
+1. **Schema Initialization**
+   ```bash
+   # Connect to MySQL
+   mysql -u root -p
+   
+   # Create database
+   CREATE DATABASE golf_bookr;
+   
+   # Import schema
+   mysql -u root -p golf_bookr < server/db/schema.sql
+   ```
+
+2. **Initial Data Setup**
+   ```bash
+   # Create admin user
+   node server/scripts/createAdmin.js
+   
+   # Verify tables
+   mysql -u root -p golf_bookr -e "SHOW TABLES;"
+   ```
+
+## Server Deployment
+
+1. **Environment Variables**
+   ```bash
+   # Server .env
+   DB_HOST=your_mysql_host
+   DB_USER=your_mysql_user
+   DB_PASSWORD=your_mysql_password
+   DB_NAME=golf_bookr
+   JWT_SECRET=your_jwt_secret
+   GEMINI_API_KEY=your_gemini_key
+   CORS_ORIGIN=your_client_url
+   ```
+
+2. **WebSocket Setup**
+   ```bash
+   # Check port availability
+   lsof -i :3000
+   
+   # Start server with WebSocket support
+   npm run dev
+   ```
+
+3. **Real-time Features**
+   - WebSocket connection for live booking updates
+   - Chat system with database context refresh
+   - Tee time availability monitoring
+
+## Client Deployment
+
+1. **Environment Setup**
+   ```bash
+   # Client .env
+   VITE_API_URL=your_server_url
+   VITE_WS_URL=your_websocket_url
+   ```
+
+2. **Build and Deploy**
+   ```bash
+   cd client
+   npm run build
+   ```
+
+## Database Maintenance
+
+1. **Regular Backups**
+   ```bash
+   # Backup database
+   mysqldump -u root -p golf_bookr > backup.sql
+   ```
+
+2. **Index Management**
+   ```sql
+   -- Check index usage
+   SHOW INDEX FROM tee_times;
+   SHOW INDEX FROM bookings;
+   ```
+
+## Monitoring
+
+1. **WebSocket Status**
+   - Monitor client connections
+   - Check real-time updates
+   - Verify chat service status
+
+2. **Database Performance**
+   - Monitor tee time queries
+   - Check booking transaction times
+   - Verify connection pool status
+
+## Troubleshooting
+
+1. **Common Issues**
+   - WebSocket connection failures
+   - Database connection timeouts
+   - Real-time update delays
+
+2. **Solutions**
+   - Restart WebSocket server
+   - Check database connections
+   - Clear expired chat sessions
+
+## Health Checks
+
+1. **API Endpoints**
+   - /health for server status
+   - /ws for WebSocket status
+   - /chat/test for chat service
+
+2. **Database Status**
+   ```sql
+   -- Check active connections
+   SHOW PROCESSLIST;
+   ```
