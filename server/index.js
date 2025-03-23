@@ -22,12 +22,12 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 
+const corsOrigins = process.env.NODE_ENV === 'production' 
+    ? [process.env.CORS_ORIGIN_PROD]
+    : [process.env.CORS_ORIGIN];
+
 app.use(cors({
-    origin: [
-        'https://golf-bookr.vercel.app', 
-        'http://localhost:5173', 
-        'https://71df-171-7-33-240.ngrok-free.app'
-    ],
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
