@@ -103,113 +103,78 @@ For booking confirmation:
 - Services: [selected services]
 Would you like me to help you complete this booking?"`;
 
-// Modify getDatabaseContext to match our simplified schema
+// Enhance database context function
 async function getDatabaseContext() {
     try {
-        // Get courses with extended details and stats
+        // Get courses with detailed information
         const [courses] = await db.execute(`
             SELECT 
                 c.*,
                 COUNT(DISTINCT t.id) as total_tee_times,
                 COUNT(DISTINCT b.id) as total_bookings,
                 AVG(CASE WHEN b.id IS NOT NULL THEN 1 ELSE 0 END) as booking_rate,
-                MIN(t.price) as min_price,
-                MAX(t.price) as max_price
+                GROUP_CONCAT(DISTINCT t.time) as available_times
             FROM courses c
-            LEFT JOIN tee_times t ON c.id = t.course_id
+            LEFT JOIN tee_times t ON c.id = t.course_id AND t.available = 1
             LEFT JOIN bookings b ON t.id = b.tee_time_id
             GROUP BY c.id
         `);
 
-        // Get availability for next 7 days
-        const [weekAvailability] = await db.execute(`
+        // Get peak hours information
+        const [peakHours] = await db.execute(`
             SELECT 
-                c.name as course_name,
-                DATE(t.date) as play_date,
                 CASE 
-                    WHEN HOUR(t.time) BETWEEN 6 AND 11 THEN 'Morning'
-                    WHEN HOUR(t.time) BETWEEN 12 AND 15 THEN 'Afternoon'
+                    WHEN HOUR(time) BETWEEN 6 AND 11 THEN 'Morning'
+                    WHEN HOUR(time) BETWEEN 12 AND 16 THEN 'Afternoon'
                     ELSE 'Evening'
-                END as session,
-                COUNT(*) as total_slots,
-                SUM(t.available) as available_slots,
-                MIN(t.price) as session_min_price,
-                MAX(t.price) as session_max_price,
-                GROUP_CONCAT(DISTINCT TIME_FORMAT(t.time, '%H:%i') ORDER BY t.time) as available_times
-            FROM courses c
-            JOIN tee_times t ON c.id = t.course_id
-            WHERE t.date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
-            GROUP BY c.name, DATE(t.date),
-                CASE 
-                    WHEN HOUR(t.time) BETWEEN 6 AND 11 THEN 'Morning'
-                    WHEN HOUR(t.time) BETWEEN 12 AND 15 THEN 'Afternoon'
-                    ELSE 'Evening'
-                END
-            ORDER BY c.name, play_date, session
-        `);
-
-        // Get recent booking trends
-        const [bookingTrends] = await db.execute(`
-            SELECT 
-                c.name as course_name,
-                COUNT(*) as recent_bookings,
-                AVG(b.player_count) as avg_group_size
-            FROM courses c
-            JOIN tee_times t ON c.id = t.course_id
+                END as time_slot,
+                COUNT(*) as booking_count
+            FROM tee_times t
             JOIN bookings b ON t.id = b.tee_time_id
-            WHERE b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY c.id
+            WHERE DATE(b.booking_date) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            GROUP BY time_slot
         `);
 
-        // Format enhanced course information
-        const coursesInfo = courses.map(course => `
-            Course: ${course.name}
-            Location: ${course.location}
-            Holes: ${course.holes}
-            Difficulty: ${course.difficulty_level}
-            Price Range: ${course.min_price} - ${course.max_price} THB
-            Current Booking Rate: ${Math.round(course.booking_rate * 100)}%
-            Services: ${formatServices(course)}
-            Facilities: ${course.facilities}
-        `).join('\n\n');
+        // Format course information for AI context
+        const courseInfo = courses.map(course => ({
+            name: course.name,
+            description: course.description,
+            difficulty: course.difficulty_level,
+            holes: course.holes,
+            location: course.location,
+            facilities: course.facilities,
+            services: formatServices(course),
+            popularTimes: course.available_times?.split(',') || [],
+            bookingRate: Math.round(course.booking_rate * 100)
+        }));
 
-        // Format weekly availability
-        const weeklyAvailability = weekAvailability.reduce((acc, slot) => {
-            const key = `${slot.course_name} - ${slot.play_date}`;
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(
-                `${slot.session}: ${slot.available_slots}/${slot.total_slots} slots` +
-                ` (${slot.session_min_price}-${slot.session_max_price} THB)`
-            );
-            return acc;
-        }, {});
+        // Create dynamic context
+        const dynamicContext = `
+AVAILABLE COURSES:
+${courseInfo.map(course => `
+- ${course.name}
+  * Difficulty: ${course.difficulty}
+  * Holes: ${course.holes}
+  * Location: ${course.location}
+  * Booking Rate: ${course.bookingRate}%
+  * Services: ${course.services}
+  * Facilities: ${course.facilities}
+`).join('\n')}
 
-        // Format booking trends
-        const trendInfo = bookingTrends.map(trend => 
-            `${trend.course_name}: ${trend.recent_bookings} bookings in last 7 days` +
-            ` (avg group: ${trend.avg_group_size.toFixed(1)} players)`
-        ).join('\n');
+PEAK HOURS INFORMATION:
+${peakHours.map(slot => `- ${slot.time_slot}: ${slot.booking_count} bookings in last 7 days`).join('\n')}
+`;
 
-        return `
-            CURRENT COURSE INFORMATION:
-            ${coursesInfo}
-
-            AVAILABILITY FOR NEXT 7 DAYS:
-            ${formatWeeklyAvailability(weeklyAvailability)}
-
-            BOOKING TRENDS:
-            ${trendInfo}
-
-            RECOMMENDED BOOKING TIPS:
-            - Morning sessions (6 AM - 12 PM): ${getEnhancedSessionTip('Morning', weekAvailability)}
-            - Afternoon sessions (12 PM - 4 PM): ${getEnhancedSessionTip('Afternoon', weekAvailability)}
-            - Evening sessions (4 PM - 7 PM): ${getEnhancedSessionTip('Evening', weekAvailability)}
-            `;
-                } catch (error) {
-                    console.error('Error getting database context:', error);
-                    return '';
-                }
-            }
+        return {
+            courses: courseInfo,
+            peakHours,
+            dynamicContext
+        };
+    } catch (error) {
+        console.error('Error getting database context:', error);
+        throw error;
+    }
+}
 
 function formatServices(course) {
     const services = [];
@@ -219,27 +184,9 @@ function formatServices(course) {
     return services.join(', ');
 }
 
-function formatWeeklyAvailability(weeklyData) {
-    return Object.entries(weeklyData)
-        .map(([dateKey, sessions]) => `${dateKey}:\n${sessions.join('\n')}`)
-        .join('\n\n');
-}
 
-function getEnhancedSessionTip(session, availability) {
-    const todaySlots = availability.filter(slot => 
-        slot.session === session && 
-        slot.play_date === new Date().toISOString().split('T')[0]
-    );
-    
-    const totalAvailable = todaySlots.reduce((sum, slot) => sum + slot.available_slots, 0);
-    const avgPrice = todaySlots.reduce((sum, slot) => sum + (slot.session_min_price + slot.session_max_price) / 2, 0) / todaySlots.length;
-    
-    if (totalAvailable === 0) return 'Fully booked';
-    if (totalAvailable < 5) return `Limited availability (Avg: ${avgPrice.toFixed(0)} THB)`;
-    return `Good availability (Avg: ${avgPrice.toFixed(0)} THB)`;
-}
 
-// Initialize chat with database context
+// Update initializeChat function
 async function initializeChat(userId) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const chat = model.startChat({
@@ -252,21 +199,27 @@ async function initializeChat(userId) {
         },
     });
 
-    // Get initial database context
-    const databaseContext = await getDatabaseContext();
-    const fullContext = GOLF_CONTEXT + '\n\n' + databaseContext;
+    // Get current database context
+    const { dynamicContext } = await getDatabaseContext();
     
-    // Train the AI with initial context
+    // Combine static and dynamic context
+    const fullContext = `${GOLF_CONTEXT}\n\nCURRENT SYSTEM STATUS:\n${dynamicContext}`;
+    
+    // Initialize AI with combined context
     await chat.sendMessage(`
-You are CawFee, a golf booking assistant. Here is your current knowledge base. 
-Remember all of this information for future responses:
+You are CawFee, a golf booking assistant. Here is your current knowledge base including real-time course information:
 
 ${fullContext}
 
-Respond with "Database context loaded and ready to assist" if you understand.
+Important Instructions:
+1. Always provide recommendations based on the current course data
+2. Include specific course details when making suggestions
+3. Mention current availability and peak hours when discussing timing
+4. Use the actual facilities and services listed for each course
+
+Respond with "Initialized with current course data" if you understand.
     `);
 
-    // Store the chat instance
     conversations.set(userId, {
         chat,
         lastUpdate: Date.now()
