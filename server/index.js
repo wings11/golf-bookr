@@ -22,8 +22,16 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 
+const corsOrigins = process.env.NODE_ENV === 'production' 
+    ? [process.env.CORS_ORIGIN_PROD]
+    : [process.env.CORS_ORIGIN];
+
 app.use(cors({
+<<<<<<< HEAD
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
+=======
+    origin: corsOrigins,
+>>>>>>> d6f31f1143a0476847637aea4ca333f6dcf7f30c
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

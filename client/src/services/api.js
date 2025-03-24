@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
+<<<<<<< HEAD
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',  // Use env variable with fallback
+=======
+    baseURL: import.meta.env.VITE_API_URL,  // Make sure this matches your server URL
+>>>>>>> d6f31f1143a0476847637aea4ca333f6dcf7f30c
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
