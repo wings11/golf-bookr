@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://54e4-171-7-33-240.ngrok-free.app/api/:path*"
+      "destination": "https://d27a-171-7-33-240.ngrok-free.app/api/:path*"
     },
     {
       "source": "/health",
-      "destination": "https://54e4-171-7-33-240.ngrok-free.app/health"
+      "destination": "https://d27a-171-7-33-240.ngrok-free.app/health"
     }
   ],
   "headers": [
