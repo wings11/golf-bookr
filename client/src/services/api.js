@@ -1,11 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-<<<<<<< HEAD
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',  // Use env variable with fallback
-=======
-    baseURL: import.meta.env.VITE_API_URL,  // Make sure this matches your server URL
->>>>>>> d6f31f1143a0476847637aea4ca333f6dcf7f30c
+    baseURL: 'http://localhost:3000',  // Make sure this matches your server URL
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -20,7 +16,7 @@ api.getImageUrl = (imagePath) => {
     if (imagePath.startsWith('http')) return imagePath;
     // Remove any leading slashes and combine with baseURL
     const cleanPath = imagePath.replace(/^\/+/, '');
-    const fullUrl = `${import.meta.env.VITE_API_BASE_URL}/${cleanPath}`;
+    const fullUrl = `${api.defaults.baseURL}/${cleanPath}`;
     console.log('Constructed image URL:', fullUrl);
     return fullUrl;
 };
